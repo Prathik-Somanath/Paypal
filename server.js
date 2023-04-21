@@ -3,13 +3,9 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const flash = require('connect-flash');
 const app = express();
-const bodyParser = require('body-parser');
-const braintree = require('braintree');
-const paypal = require('paypal-rest-sdk');
 const userController = require('./controllers/userController');
 const subscriptionController = require('./controllers/subscriptionController');
 const productController = require('./controllers/productController');
-const axios = require('axios');
 require('dotenv').config()
 
 const port = process.env.PORT || 3000;
@@ -42,14 +38,6 @@ app.use(express.static('public'));
 
 // Set up body parsing middleware
 app.use(express.urlencoded({ extended: true }));
-
-// paypal auth configuration
-
-paypal.configure({
-  'mode': 'sandbox', //sandbox or live
-  'client_id': process.env.PAYPAL_CLIENT_ID,
-	'client_secret': process.env.PAYPAL_CLIENT_SECRET
-})
 
 
 // home screen dashboard but route to login if not

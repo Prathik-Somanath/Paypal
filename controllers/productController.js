@@ -13,8 +13,6 @@ productController.list = async (req, res) => {
 	}
 	const products = await Product.find();
 	const subscription = await Subscription.find({ customer_id: req.session.user._id, status: 'ACTIVE' })
-      // .populate('product');
-	// console.log('SUB: ', subscription, req.session.user._id)
 	res.render('dashboard', { user: req.session.user, products, subscription, moment: moment });
 }
 
