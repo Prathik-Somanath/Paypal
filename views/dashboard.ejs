@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://www.paypalobjects.com/api/checkout.js"></script> -->
+		<script src="https://www.paypal.com/sdk/js?client-id=<%= process.env.PAYPAL_CLIENT_ID %>&components=buttons&vault=true&intent=subscription"></script>
+    <title>Products</title>
+</head>
+<body>
+    <form method="get" action="/logout">
+        <button style="float: right;" type="submit">Logout</button>
+    </form>
+    <h1>Product List</h1>
+    <% if (products.length === 0) { %>
+        <p>No products found.</p>
+    <% } else { %>
+        <ul>
+            <% products.forEach(function(product) { %>
+                <li>
+                    <strong><%= product.name %> - <%= product?.billing_cycles?.[0]?.pricing_scheme?.fixed_price?.value%></strong>
+										<% if (subscription && subscription.some((item) => item.plan_id === product.id)) { %>
+											<span style="color: green;">(Subscribed), Next billing on <%= moment(subscription.find((item) => item.plan_id === product.id).billing_info.next_billing_time).format('ll') %></span>
+										<% } %>
+                    <div id=<%= product.id %>></div>
+                    <!-- <div id=<%= product.id %> data-test=<%= product.id %>></div> -->
+                    <script>
+											window.open("http://localhost:3000/success?subscription_id=I-93KN6LMAEJYL")
+											// window.location.replace("http://localhost:3000/success?subscription_id=I-93KN6LMAEJYL");
+                        var product_id = '<%- product.id %>'
+												paypal.Buttons({
+													// Set up the subscription plan
+													createSubscription(data, actions) {
+														return actions.subscription.create({
+															'plan_id': '<%- product.id %>'
+														});
+													},
+													// Finalize the subscription
+													onApprove: function(data, actions) {
+														/* Handle the subscription approval */
+														window.location.href = 'http://localhost:3000/success?subscription_id=' + data.subscriptionID
+														// alert('Subscription approved!');
+														console.log(data)
+													},
+													// Handle errors
+													onError: function(err) {
+														console.error(err);
+														alert('An error occurred!');
+													}
+												}).render('#<%- product.id %>');
+                        // paypal.Button.render({
+                        //   env: 'sandbox',
+                        //   client: {
+                        //     sandbox: '<%=process.env.PAYPAL_CLIENT_ID%>'
+                        //   },
+                        //   payment: function (data, actions) {
+												// 		console.log('ACTIONS: ',)
+                        //     return actions.billingAgreement.create({
+                        //       planId: product_id,
+                        //       returnUrl: 'http://localhost:3000/success',
+                        //       cancelUrl: 'http://localhost:3000/cancel'
+                        //     });
+                        //   },
+                        //   onAuthorize: function (data, actions) {
+												// 		return actions.billingAgreement.execute().then(function () {
+												// 			window.location.href = '/success';
+												// 		});
+												// 	}
+                        // }, '#paypal-button-container');
+                      </script>
+                    
+                </li>
+            <% }) %>
+        </ul>
+    <% } %>
+</body>
+</html>
